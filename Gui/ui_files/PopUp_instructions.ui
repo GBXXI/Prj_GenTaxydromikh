@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog_Instructions</class>
+ <widget class="QDialog" name="Dialog_Instructions">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>420</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Επεξηγήσεις</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>&lt;html&gt;
+
+    &lt;head /&gt;
+
+    &lt;body&gt;
+        &lt;ol style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;
+            &lt;li align=&quot;justify&quot;
+                style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;
+                Σε περίπτωση που ο κέρσορας στην γραμμή εισαγωγής των voucher &lt;br /&gt;βρίσκεται στο μέσο του πεδίου, δεν
+                θα μπορέσει να εισάγει το &lt;br /&gt;σκαναρισμένο barcode. Πιέστε το πλήκτρο Home, ώστε να μπορέσετε &lt;br /&gt;να
+                σκανάρετε. &lt;br /&gt;&lt;/li&gt;
+            &lt;li align=&quot;justify&quot;
+                style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;
+                Το όνομα του αποστολέα γίνεται δεκτό &lt;u&gt;μόνο με ελληνικούς κεφαλαίους&lt;/u&gt;&lt;/li&gt;
+            &lt;p align=&quot;justify&quot;&gt;χαρακτήρες και πρέπει να είναι της μορφής:&lt;/p&gt;
+            &lt;p align=&quot;justify&quot;&gt;Ο. ΕΠΩΝΥΜΟ &lt;/p&gt;
+            &lt;li align=&quot;justify&quot;
+                style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;
+                Για να γίνει επιτυχώς η αποστολή του e-mail, πρέπει ΟΛΑ τα στοιχεία&lt;br /&gt;του πίνακα να είναι
+                συμπληρωμένα.&lt;/li&gt;
+        &lt;/ol&gt;
+    &lt;/body&gt;
+
+&lt;/html&gt;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="indent">
+      <number>-1</number>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

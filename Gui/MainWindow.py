@@ -7,6 +7,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 
 from palette_MainWindow import Ui_MainWindow
 from palette_PopUp_EmptyFields import Ui_Dialog_EmptyFields
+from palette_PopUp_Instructions import Ui_Dialog_Instructions
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -19,22 +20,25 @@ class MainWindow(QtWidgets.QMainWindow):
         self.mwin.setupUi(self)
 
         self.createStatusBar()
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+
 
         # A better solution is to have the emails in an encrypted .csv file and 
             # not hardcoded, but since this project is a tool for limited use, 
             # no special care about efficiency or maintainability is given.
         self.stores = {
-            'AEO ERMOU':[''],
-            'AEO GLYFADA':[''],
-            'AEO GOLDEN':[''],
-            'AEO KALAMATA':[''],
-            'AEO MALL ATHENS':[''],
-            'AEO NG':[''],
-            'AEO ONE SALONICA':[''],
-            'AEO THESSALONIKI':['']
+            'AEO ERMOU':['', ''],
+            'AEO GLYFADA':['', ''],
+            'AEO GOLDEN':['', ''],
+            'AEO KALAMATA':['', ''],
+            'AEO MALL ATHENS':['', ''],
+            'AEO NG':['', ''],
+            'AEO ONE SALONICA':['', ''],
+            'AEO THESSALONIKI':['', '']
         }
 
         self.office_team = [
+            '',
             ''
         ]
 
@@ -49,6 +53,9 @@ class MainWindow(QtWidgets.QMainWindow):
 # ----------------------------------actionExit----------------------------------
         self.mwin.actionExit.triggered.connect(self.close)
         self.mwin.actionExit.setShortcut(QtGui.QKeySequence('Alt+F4'))
+# ------------------------------actionInstructions------------------------------
+        self.mwin.actionInstructions.triggered.connect(self.helpText_)
+        self.mwin.actionInstructions.setShortcut(QtGui.QKeySequence('F1'))
 
 # -------------------------------lineEdit_consNum-------------------------------
         self.mwin.lineEdit_consNum.setMaxLength(4)
@@ -109,6 +116,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.greetings,
                 '####',
                 '####',
+                '####',
                 '####'
             )
         )
@@ -122,6 +130,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.mwin.pushButton_cancel.setAutoDefault(True)
         
 # -----------------------------------Methods------------------------------------    
+
+    def helpText_(self):
+
+        PopUpInstructions().setModal(True)
+        PopUpInstructions().exec_()
 
     # Self-indulgence Function.
     def createStatusBar(self):
@@ -163,7 +176,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.greetings,
                 self.mwin.lineEdit_consNum.text(),
                 self.rows,
-                self.elements_gen
+                self.elements_gen,
+                self.mwin.lineEdit_senderName.text()
             )
 
             self.mwin.textEdit_eMail.setText(self.text_)
@@ -202,11 +216,11 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 PopUpEmptyFields().setModal(True)
                 PopUpEmptyFields().exec_()
-                PopUpEmptyFields().destroy()
         
         except Exception as e:
             # TODO: Create a logger.
             pass
+
 
 class PopUpEmptyFields(QtWidgets.QDialog):
     
@@ -217,9 +231,36 @@ class PopUpEmptyFields(QtWidgets.QDialog):
         self.popup.setupUi(self)
 
 
+class PopUpInstructions(QtWidgets.QDialog):
+
+    def __init__(self, parent=None):
+# ------------------------------------SetUp-------------------------------------
+        super().__init__(parent)
+        self.popup = Ui_Dialog_Instructions()
+        self.popup.setupUi(self)
+
+
 if __name__ == '__main__':
     # Declaring our application
     app = QtWidgets.QApplication(sys.argv)
+
+    app.setStyle('fusion')
+    palette = QtGui.QPalette()
+    palette.setColor(QtGui.QPalette.Window, QtGui.QColor(53, 53, 53))
+    palette.setColor(QtGui.QPalette.WindowText, QtCore.Qt.white)
+    palette.setColor(QtGui.QPalette.Base, QtGui.QColor(25, 25, 25))
+    palette.setColor(QtGui.QPalette.AlternateBase, QtGui.QColor(53, 53, 53))
+    palette.setColor(QtGui.QPalette.ToolTipBase, QtCore.Qt.black)
+    palette.setColor(QtGui.QPalette.ToolTipText, QtCore.Qt.white)
+    palette.setColor(QtGui.QPalette.Text, QtCore.Qt.white)
+    palette.setColor(QtGui.QPalette.Button, QtGui.QColor(53, 53, 53))
+    palette.setColor(QtGui.QPalette.ButtonText, QtCore.Qt.white)
+    palette.setColor(QtGui.QPalette.BrightText, QtCore.Qt.red)
+    palette.setColor(QtGui.QPalette.Link, QtGui.QColor(42, 130, 218))
+    palette.setColor(QtGui.QPalette.Highlight, QtGui.QColor(42, 130, 218))
+    palette.setColor(QtGui.QPalette.HighlightedText, QtCore.Qt.black)
+    app.setPalette(palette)
+
     main_window = MainWindow()
     main_window.show()
     sys.exit(app.exec_())

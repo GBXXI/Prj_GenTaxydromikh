@@ -1,5 +1,5 @@
 
-def formBody(greeting, consNum, boxes, voucherNum):
+def formBody(greeting, consNum, boxes, voucherNum, sender_name):
     formText_style = """
     <style>
         tab1 {
@@ -41,6 +41,10 @@ def formBody(greeting, consNum, boxes, voucherNum):
             </ol>
         </p>
 
+        <p>
+            {sender_name}
+        </p>
+
     </div>
     """
     # print(formText_style, formText_Body)
@@ -51,5 +55,5 @@ if __name__ == '__main__':
     v_dict = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
     v_list = [f'<li>{value}</li>' for value in v_dict.values()]
     v_gen = (f'<li>{value}</li>' for value in v_dict.values())
-    k = formBody('evening', 321, 3, v_gen)
+    k = formBody('evening', 321, 3, v_gen, 'John Doe')
     print(k)
