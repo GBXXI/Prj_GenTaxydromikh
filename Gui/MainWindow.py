@@ -53,6 +53,7 @@ class MainWindow(QtWidgets.QMainWindow):
 # ----------------------------------actionExit----------------------------------
         self.mwin.actionExit.triggered.connect(self.close)
         self.mwin.actionExit.setShortcut(QtGui.QKeySequence('Alt+F4'))
+        
 # ------------------------------actionInstructions------------------------------
         self.mwin.actionInstructions.triggered.connect(self.helpText_)
         self.mwin.actionInstructions.setShortcut(QtGui.QKeySequence('F1'))
@@ -138,6 +139,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # Self-indulgence Function.
     def createStatusBar(self):
+        
         self.myStatus = QtWidgets.QStatusBar()
         self.myStatus.showMessage('Created by GBXXI')
         self.setStatusBar(self.myStatus)

@@ -2,5 +2,7 @@
 .venv
 .vscode
 .Sources
+__pycache__
+Gui\__pycache__
 Pipfile
 Pipfile.lock
