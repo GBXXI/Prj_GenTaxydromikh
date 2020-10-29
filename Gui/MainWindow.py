@@ -20,6 +20,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.createStatusBar()
 
+        # A better solution is to have the emails in an encrypted .csv file and 
+            # not hardcoded, but since this project is a tool for limited use, 
+            # no special care about efficiency or maintainability is given.
         self.stores = {
             'AEO ERMOU':[''],
             'AEO GLYFADA':[''],
@@ -68,14 +71,20 @@ class MainWindow(QtWidgets.QMainWindow):
             self.greetings = self.greetings[1]
 
 # -----------------------------lineEdit_senderName------------------------------
-        self.mwin.lineEdit_senderName.setInputMask('AAAAAAAAAAAAAAAAAAAA\vAAAAAAAAAAAAAAAAAAAA')
+        self.mwin.lineEdit_senderName.setValidator(QtGui.QRegExpValidator(r'[Α-Ω]\.?\s[Α-Ω]*'))
 
 # -------------------------------lineEdit_voucher-------------------------------
+        # In this lineEdit widget, there is no use of the QIntValidator as the
+            # widget above, because a bug causes the widget to surpass the 
+            # maximum allowed characters length, which results for an invalid 
+            # input. Thus it is considered more intuitive for the user to deal 
+            # with the following bug, which is easily bypassed by just pressing 
+            # the 'home' button, on the keyboard.
         self.mwin.lineEdit_voucher.setInputMask('9999999999')
-        self.mwin.lineEdit_voucher.setCursorPosition(0)
-        self.mwin.lineEdit_voucher.setMaxLength(10)
         # BUG: Find why the cursor is not placed on the beginning when selected
         # by clicking on the widget.
+        self.mwin.lineEdit_voucher.setCursorPosition(0)
+        self.mwin.lineEdit_voucher.setMaxLength(10)
         self.mwin.lineEdit_voucher.setClearButtonEnabled(True)
         self.mwin.lineEdit_voucher.editingFinished.connect(self.tb_input)
         self.mwin.lineEdit_voucher.editingFinished.connect(self.entries)
