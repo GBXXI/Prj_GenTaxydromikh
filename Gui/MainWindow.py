@@ -48,6 +48,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 # ----------------------------------actionExit----------------------------------
         self.mwin.actionExit.triggered.connect(self.close)
+        self.mwin.actionExit.setShortcut(QtGui.QKeySequence('Alt+F4'))
 
 # -------------------------------lineEdit_consNum-------------------------------
         self.mwin.lineEdit_consNum.setMaxLength(4)
