@@ -6,6 +6,7 @@
 __pycache__
 Gui\__pycache__
 # Files
+*.db
 *.log
 Pipfile
 Pipfile.lock

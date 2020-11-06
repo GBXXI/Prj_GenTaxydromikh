@@ -1,6 +1,7 @@
 
 import logging
 import os
+import sqlite3 as sq3
 import sys
 
 import formattedText
@@ -17,9 +18,11 @@ if sys.platform.startswith('win32'):
     import win32com.client as client
     
     file_handler = logging.FileHandler(directory+r"\GenikhTaxydromikh.log")
+    conn = sq3.connect(directory+r"\GenikhTaxydromikh.db")
 
 else:
-    file_handler = logging.FileHandler(directory+"/GenikhTaxydromikh.log")
+    file_handler = logging.FileHandler(f"{directory}/GenikhTaxydromikh.log")
+    conn = sq3.connect(f"{directory}/GenikhTaxydromikh.db")
     
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
