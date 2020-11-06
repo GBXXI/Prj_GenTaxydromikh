@@ -1,8 +1,11 @@
 
+# Folders
 .venv
 .vscode
 .Sources
 __pycache__
 Gui\__pycache__
+# Files
+*.log
 Pipfile
 Pipfile.lock
