@@ -1,6 +1,6 @@
 
-def formBody(greeting, consNum, boxes, voucherNum, sender_name):
-    formText_style = """
+def formattedBody(greeting, consNum, boxes, voucherNum, sender_name):
+    formattedText_style = """
     <style>
         tab1 {
             padding-left: 2em;
@@ -16,7 +16,7 @@ def formBody(greeting, consNum, boxes, voucherNum, sender_name):
         }
     </style>
     """
-    formText_Body = f"""
+    formattedText_Body = f"""
     <div>
         
         <p>
@@ -47,13 +47,20 @@ def formBody(greeting, consNum, boxes, voucherNum, sender_name):
 
     </div>
     """
-    # print(formText_style, formText_Body)
-    return formText_style + '\n' + formText_Body
+    # print(formattedText_style, formattedText_Body)
+    return formattedText_style + '\n' + formattedText_Body
+
+formattedText_Os = \
+"""YOU ARE RUNNING THIS PROGRAMM IN AN
+NO WINDOWS MACHINE. AFTER THIS MESSAGE IS CLOSED IT
+IS GOING TO BE TERMINATED.
+"""    
 
 # -------------------------------"Dirty Testing"--------------------------------
 if __name__ == '__main__':
     v_dict = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
     v_list = [f'<li>{value}</li>' for value in v_dict.values()]
     v_gen = (f'<li>{value}</li>' for value in v_dict.values())
-    k = formBody('evening', 321, 3, v_gen, 'John Doe')
+    k = formattedBody('evening', 321, 3, v_gen, 'John Doe')
     print(k)
+    print(formattedText_Os)

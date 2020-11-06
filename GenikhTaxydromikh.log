@@ -1,0 +1,97 @@
+
+2020-11-05 11:38:05,858 ERROR
+name 'client' is not defined
+Traceback (most recent call last):
+  File "/home/gbxxi/Projects/Prj_GenTaxydromikh/Gui/MainWindow.py", line 226, in e_mail
+    outlook = client.Dispatch("Outlook.Application")
+NameError: name 'client' is not defined
+2020-11-05 11:38:08,821 ERROR
+name 'client' is not defined
+Traceback (most recent call last):
+  File "/home/gbxxi/Projects/Prj_GenTaxydromikh/Gui/MainWindow.py", line 226, in e_mail
+    outlook = client.Dispatch("Outlook.Application")
+NameError: name 'client' is not defined
+2020-11-05 11:39:55,352 ERROR
+name 'client' is not defined
+Traceback (most recent call last):
+  File "/home/gbxxi/Projects/Prj_GenTaxydromikh/Gui/MainWindow.py", line 226, in e_mail
+    outlook = client.Dispatch("Outlook.Application")
+NameError: name 'client' is not defined
+2020-11-05 11:40:58,189 ERROR
+name 'client' is not defined
+Traceback (most recent call last):
+  File "/home/gbxxi/Projects/Prj_GenTaxydromikh/Gui/MainWindow.py", line 226, in e_mail
+    outlook = client.Dispatch("Outlook.Application")
+NameError: name 'client' is not defined
+2020-11-05 11:49:52,416 ERROR
+name 'client' is not defined
+Traceback (most recent call last):
+  File "/home/gbxxi/Projects/Prj_GenTaxydromikh/Gui/MainWindow.py", line 226, in e_mail
+    outlook = client.Dispatch("Outlook.Application")
+NameError: name 'client' is not defined
+2020-11-05 11:51:08,367 ERROR
+name 'client' is not defined
+Traceback (most recent call last):
+  File "/home/gbxxi/Projects/Prj_GenTaxydromikh/Gui/MainWindow.py", line 226, in e_mail
+    outlook = client.Dispatch("Outlook.Application")
+NameError: name 'client' is not defined
+2020-11-05 11:51:11,063 ERROR
+name 'client' is not defined
+Traceback (most recent call last):
+  File "/home/gbxxi/Projects/Prj_GenTaxydromikh/Gui/MainWindow.py", line 226, in e_mail
+    outlook = client.Dispatch("Outlook.Application")
+NameError: name 'client' is not defined
+2020-11-05 12:00:15,833 ERROR
+name 'client' is not defined
+Traceback (most recent call last):
+  File "/home/gbxxi/Projects/Prj_GenTaxydromikh/Gui/MainWindow.py", line 226, in e_mail
+    outlook = client.Dispatch("Outlook.Application")
+NameError: name 'client' is not defined
+2020-11-05 12:00:24,065 ERROR
+name 'client' is not defined
+Traceback (most recent call last):
+  File "/home/gbxxi/Projects/Prj_GenTaxydromikh/Gui/MainWindow.py", line 226, in e_mail
+    outlook = client.Dispatch("Outlook.Application")
+NameError: name 'client' is not defined
+2020-11-05 12:01:37,221 ERROR
+name 'client' is not defined
+Traceback (most recent call last):
+  File "/home/gbxxi/Projects/Prj_GenTaxydromikh/Gui/MainWindow.py", line 226, in e_mail
+    outlook = client.Dispatch("Outlook.Application")
+NameError: name 'client' is not defined
+2020-11-05 12:04:31,810 ERROR
+name 'client' is not defined
+Traceback (most recent call last):
+  File "/home/gbxxi/Projects/Prj_GenTaxydromikh/Gui/MainWindow.py", line 226, in e_mail
+    outlook = client.Dispatch("Outlook.Application")
+NameError: name 'client' is not defined
+2020-11-05 12:04:53,313 ERROR
+name 'client' is not defined
+Traceback (most recent call last):
+  File "/home/gbxxi/Projects/Prj_GenTaxydromikh/Gui/MainWindow.py", line 226, in e_mail
+    outlook = client.Dispatch("Outlook.Application")
+NameError: name 'client' is not defined
+2020-11-05 12:05:50,097 ERROR
+name 'client' is not defined
+Traceback (most recent call last):
+  File "/home/gbxxi/Projects/Prj_GenTaxydromikh/Gui/MainWindow.py", line 226, in e_mail
+    outlook = client.Dispatch("Outlook.Application")
+NameError: name 'client' is not defined
+2020-11-05 12:07:37,693 ERROR
+name 'client' is not defined
+Traceback (most recent call last):
+  File "/home/gbxxi/Projects/Prj_GenTaxydromikh/Gui/MainWindow.py", line 226, in e_mail
+    outlook = client.Dispatch("Outlook.Application")
+NameError: name 'client' is not defined
+2020-11-06 12:37:19,426 ERROR
+module 'formattedText' has no attribute 'formBody'
+Traceback (most recent call last):
+  File "/home/gbxxi/Projects/Prj_GenTaxydromikh/Gui/MainWindow.py", line 199, in entries
+    self.text_ = formattedText.formBody(
+AttributeError: module 'formattedText' has no attribute 'formBody'
+2020-11-06 12:37:20,524 ERROR
+name 'client' is not defined
+Traceback (most recent call last):
+  File "/home/gbxxi/Projects/Prj_GenTaxydromikh/Gui/MainWindow.py", line 227, in e_mail
+    outlook = client.Dispatch("Outlook.Application")
+NameError: name 'client' is not defined

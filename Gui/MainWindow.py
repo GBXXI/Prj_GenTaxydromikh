@@ -1,14 +1,36 @@
 
+import logging
+import os
 import sys
 
-import formText
-import win32com.client as client
+import formattedText
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from palette_MainWindow import Ui_MainWindow
 from palette_PopUp_EmptyFields import Ui_Dialog_EmptyFields
 from palette_PopUp_Instructions import Ui_Dialog_Instructions
 
+# ------------------------------MODULARISED LOGGER------------------------------
+directory = os.getcwd()
+
+if sys.platform.startswith('win32'):
+    import win32com.client as client
+    
+    file_handler = logging.FileHandler(directory+r"\GenikhTaxydromikh.log")
+
+else:
+    file_handler = logging.FileHandler(directory+"/GenikhTaxydromikh.log")
+    
+log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
+
+log_format = logging.Formatter('%(asctime)s %(levelname)s\n%(message)s\n')
+
+file_handler.setFormatter(log_format)
+
+log.addHandler(file_handler)
+
+# ------------------------------------------------------------------------------
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -113,7 +135,7 @@ class MainWindow(QtWidgets.QMainWindow):
 # --------------------------------textEdit_eMail--------------------------------
         self.mwin.textEdit_eMail.setReadOnly(True)
         self.mwin.textEdit_eMail.setText(
-            formText.formBody(
+            formattedText.formattedBody(
                 self.greetings,
                 '####',
                 '####',
@@ -174,7 +196,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 for i in range(self.rows)
             )
 
-            self.text_ = formText.formBody(
+            self.text_ = formattedText.formattedBody(
                 self.greetings,
                 self.mwin.lineEdit_consNum.text(),
                 self.rows,
@@ -184,9 +206,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
             self.mwin.textEdit_eMail.setText(self.text_)
         
-        # TODO: Create a logger.
-        except Exception as e:
-            pass
+        except Exception as err:
+            log.exception(err)
 
     def e_mail(self):
 
@@ -219,9 +240,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 PopUpEmptyFields().setModal(True)
                 PopUpEmptyFields().exec_()
         
-        except Exception as e:
-            # TODO: Create a logger.
-            pass
+        except Exception as err:
+            no_windows = PopUpEmptyFields()
+            no_windows.popup.label.setText(formattedText.formattedText_Os)
+            log.exception(err)
+            no_windows.exec_()
+            self.close()
 
 
 class PopUpEmptyFields(QtWidgets.QDialog):
