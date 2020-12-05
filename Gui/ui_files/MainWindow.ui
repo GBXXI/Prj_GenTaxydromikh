@@ -260,7 +260,16 @@
     </property>
     <addaction name="actionInstructions"/>
    </widget>
+   <widget class="QMenu" name="menuEmails">
+    <property name="title">
+     <string>Emails</string>
+    </property>
+    <addaction name="actionPreview"/>
+    <addaction name="actionInsert"/>
+    <addaction name="actionDelete"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEmails"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -272,6 +281,21 @@
   <action name="actionInstructions">
    <property name="text">
     <string>Instructions</string>
+   </property>
+  </action>
+  <action name="actionPreview">
+   <property name="text">
+    <string>Preview</string>
+   </property>
+  </action>
+  <action name="actionInsert">
+   <property name="text">
+    <string>Insert</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="text">
+    <string>Delete</string>
    </property>
   </action>
  </widget>

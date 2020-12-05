@@ -3,10 +3,15 @@
 .venv
 .vscode
 .Sources
+.env
 __pycache__
-Gui\__pycache__
 # Files
 *.db
 *.log
+*.txt
+*.csv
+*.sql
 Pipfile
 Pipfile.lock
+# Exceptions
+!requirements.txt

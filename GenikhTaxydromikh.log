@@ -1,6 +1,0 @@
-2020-11-06 13:41:01,109 ERROR
-name 'client' is not defined
-Traceback (most recent call last):
-  File "/home/gbxxi/Projects/Prj_GenTaxydromikh/Gui/MainWindow.py", line 230, in e_mail
-    outlook = client.Dispatch("Outlook.Application")
-NameError: name 'client' is not defined

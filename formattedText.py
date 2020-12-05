@@ -18,11 +18,11 @@ def formattedBody(greeting, consNum, boxes, voucherNum, sender_name):
     """
     formattedText_Body = f"""
     <div>
-        
+
         <p>
-            {greeting} σας,<br>    
+            {greeting} σας,<br>
         </p>
-        
+
         <p>
             <tab1>
                 Μόλις αναχώρησε από την αποθήκη μας η αποστολή με <br>
@@ -35,9 +35,9 @@ def formattedBody(greeting, consNum, boxes, voucherNum, sender_name):
                 ποσότητα Κιβωτίων: {boxes}
             </u></strong> <br>
         καθώς και τους ακόλουθους <strong><u>αριθμούς voucher</u></strong>:
-            
+
             <ol>
-               {(' ').join(voucherNum)} 
+               {(' ').join(voucherNum)}
             </ol>
         </p>
 
@@ -50,11 +50,42 @@ def formattedBody(greeting, consNum, boxes, voucherNum, sender_name):
     # print(formattedText_style, formattedText_Body)
     return formattedText_style + '\n' + formattedText_Body
 
-formattedText_Os = \
-"""YOU ARE RUNNING THIS PROGRAMM IN AN
-NO WINDOWS MACHINE. AFTER THIS MESSAGE IS CLOSED IT
-IS GOING TO BE TERMINATED.
-"""    
+formattedText_Os = (
+    "YOU ARE RUNNING THIS PROGRAMM IN AN NO WINDOWS MACHINE."
+    "AFTER THIS MESSAGE IS CLOSED IT IS GOING TO BE TERMINATED."
+)
+
+formattedText_EmptyFields = (
+    "Υπάρχουν κενά πεδία! \n"
+    "Παρακαλώ συμπληρώστετα και προσπαθήστε ξανά!"
+)
+
+formattedText_Help = (
+    "<html>\n"
+        "\n"
+        "    <head />\n"
+        "\n"
+        "    <body>\n"
+        "        <ol style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\">\n"
+        "            <li align=\"justify\"\n"
+        "                style=\" margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">\n"
+        "                Σε περίπτωση που ο κέρσορας στην γραμμή εισαγωγής των voucher <br />βρίσκεται στο μέσο του πεδίου, δεν\n"
+        "                θα μπορέσει να εισάγει το <br />σκαναρισμένο barcode. Πιέστε το πλήκτρο Home, ώστε να μπορέσετε <br />να\n"
+        "                σκανάρετε. <br /></li>\n"
+        "            <li align=\"justify\"\n"
+        "                style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">\n"
+        "                Το όνομα του αποστολέα γίνεται δεκτό <u>μόνο με ελληνικούς κεφαλαίους</u></li>\n"
+        "            <p align=\"justify\">χαρακτήρες και πρέπει να είναι της μορφής:</p>\n"
+        "            <p align=\"justify\">Ο. ΕΠΩΝΥΜΟ </p>\n"
+        "            <li align=\"justify\"\n"
+        "                style=\" margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">\n"
+        "                Για να γίνει επιτυχώς η αποστολή του e-mail, πρέπει ΟΛΑ τα στοιχεία<br />του πίνακα να είναι\n"
+        "                συμπληρωμένα.</li>\n"
+        "        </ol>\n"
+        "    </body>\n"
+        "\n"
+    "</html>"
+)
 
 # -------------------------------"Dirty Testing"--------------------------------
 if __name__ == '__main__':
