@@ -8,9 +8,9 @@ import formattedText
 from db_sqlite3 import DataBase
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from palette_EmailCRUD import Ui_Dialog_EmailCRUD
+from Email_CRUD import EmailCRUD
+from PopUp_Text import PopUpText
 from palette_MainWindow import Ui_MainWindow
-from palette_PopUp_Text import Ui_Dialog_Text
 
 if sys.platform.startswith('win32'):
     import win32com.client as client
@@ -22,19 +22,21 @@ file_handler = logging.FileHandler(f"{directory}/GenikhTaxydromikh.log")
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
-log_format = logging.Formatter('%(asctime)s %(levelname)s\n%(message)s\n')
+log_format = logging.Formatter(
+    '%(filename)s '
+    '%(asctime)s %(levelname)s\n'
+    '%(funcName)s\n%(message)s\n'
+)
 
 file_handler.setFormatter(log_format)
 
 log.addHandler(file_handler)
 
-# -----------------------------------SQlite3------------------------------------
-db_file = (f"{directory}/GenikhTaxydromikh.db")
 
 # -------------------------------Main Window GUI--------------------------------
-
-
 class MainWindow(QtWidgets.QMainWindow):
+
+    db_file = (f"{directory}/GenikhTaxydromikh.db")
 
     def __init__(self, parent=None):
 
@@ -46,7 +48,23 @@ class MainWindow(QtWidgets.QMainWindow):
         self.createStatusBar()
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
 
-        self.dbsetup()
+        self.carbon_copy = []
+        self.recipients = {}
+
+    # --DataBase Setup----------------------------------------------------------
+        if not os.path.exists(MainWindow.db_file):
+                DataBase(MainWindow.db_file).setup()
+
+                # os.remove(MainWindow.db_file)
+
+                # no_db = PopUpText()
+                # no_db.setWindowTitle("No Database")
+                # no_db.popup.label.setTextFormat(QtCore.Qt.RichText)
+                # no_db.popup.label.setText(formattedText.No_db)
+                # no_db.setModal(True)
+                # no_db.exec_()
+        else:
+            self.dbsetup()
 
     # --TabOrder----------------------------------------------------------------
         self.mwin.lineEdit_consNum.setFocus()
@@ -67,14 +85,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # --menuEmails--------------------------------------------------------------
         self.mwin.actionPreview.triggered.connect(self.emailCRUD)
-        self.mwin.actionPreview.setShortcut(QtGui.QKeySequence('Ctrl+D'))
+        self.mwin.actionPreview.setShortcut(QtGui.QKeySequence('Ctrl+S'))
         self.mwin.actionInsert.triggered.connect(self.emailCRUD)
-        self.mwin.actionInsert.setShortcut(QtGui.QKeySequence('Ctrl+F'))
+        self.mwin.actionInsert.setShortcut(QtGui.QKeySequence('Ctrl+I'))
         self.mwin.actionDelete.triggered.connect(self.emailCRUD)
-        self.mwin.actionDelete.setShortcut(QtGui.QKeySequence('Ctrl+S'))
+        self.mwin.actionDelete.setShortcut(QtGui.QKeySequence('Ctrl+D'))
 
     # --actionInstructions------------------------------------------------------
-        self.mwin.actionInstructions.triggered.connect(self.helpText_)
+        self.mwin.actionInstructions.triggered.connect(self.help_text)
         self.mwin.actionInstructions.setShortcut(QtGui.QKeySequence('F1'))
 
     # --lineEdit_consNum--------------------------------------------------------
@@ -84,9 +102,8 @@ class MainWindow(QtWidgets.QMainWindow):
     # --comboBox_recievingStore-------------------------------------------------
         self.mwin.comboBox_recievingStore.insertItem(0, '')
         self.mwin.comboBox_recievingStore.insertItems(1,
-                                                      (f'{store}' for store in self.stores.keys(
-                                                      ))
-                                                      )
+            (f'{store}' for store in self.recipients.keys())
+        )
 
     # --dateTimeEdit_date-------------------------------------------------------
         self.mwin.dateTimeEdit_date.setDate(QtCore.QDate.currentDate())
@@ -102,6 +119,16 @@ class MainWindow(QtWidgets.QMainWindow):
     # --lineEdit_senderName-----------------------------------------------------
         self.mwin.lineEdit_senderName.setValidator(
             QtGui.QRegExpValidator(r'[Α-Ω]\.?\s[Α-Ω]*'))
+        self.mwin.lineEdit_senderName.setCompleter(
+            QtWidgets.QCompleter(
+                [
+                    'Γ. Μπιτσώνης',
+                    'Σ. Κάτσαρη',
+                    'Χ. Λόγγρος',
+                    'Σ. Κουκέας'
+                ]
+            )
+        )
 
     # --lineEdit_voucher--------------------------------------------------------
         # In this lineEdit widget, there is no use of the QIntValidator as the
@@ -116,7 +143,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.mwin.lineEdit_voucher.setCursorPosition(0)
         self.mwin.lineEdit_voucher.setMaxLength(10)
         self.mwin.lineEdit_voucher.setClearButtonEnabled(True)
-        self.mwin.lineEdit_voucher.editingFinished.connect(self.tb_input)
+        self.mwin.lineEdit_voucher.editingFinished.connect(self.tb_show)
         self.mwin.lineEdit_voucher.editingFinished.connect(self.entries)
 
     # --tableWidget_voucher-----------------------------------------------------
@@ -155,99 +182,28 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def dbsetup(self):
 
-        with DataBase(db_file) as db:
-            table_stores = db.table('stores')
-            table_office_team = db.table('officeteam')
+        with DataBase(MainWindow.db_file) as db:
+            table_recipients = db.table('Recipients')
+            table_carbon_copy = db.table('CarbonCopy')
 
-            self.office_team = [email[0]
-                                for email in table_office_team.select_emails()]
+            self.carbon_copy = [email[0]
+                                for email in table_carbon_copy.select_emails()]
 
-            self.stores = {header[0]: [email[0] for email in table_stores.select_emails(header[0])]
-                           for header in table_stores.select_headers}
+            self.recipients = {header[0]: [email[0] for email in table_recipients.select_emails(header[0])]
+                           for header in table_recipients.select_headers}
 
-    def helpText_(self):
+    def help_text(self):
         help_ = PopUpText()
         help_.setWindowTitle("Επεξηγήσεις")
-        help_.popup.label.setText(formattedText.formattedText_Help)
+        help_.popup.label.setText(formattedText.Help)
         help_.setModal(True)
         help_.exec_()
 
     def emailCRUD(self):
-        object_name = {
-            1: 'actionPreview',
-            2: 'actionInsert',
-            3: 'actionDelete'
-        }
-        crud = EmailCRUD()
-
-    # --comboBox_store----------------------------------------------------------
-        crud.db_ = DataBase(db_file)
-        crud.popup.comboBox_store.insertItem(0, '')
-        crud.popup.comboBox_store.insertItems(
-            1,
-            crud.connection_.show_tables
+        crud = EmailCRUD(
+            DataBase(MainWindow.db_file),
+            self.sender().objectName()
         )
-
-    # --Cases-------------------------------------------------------------------
-        if self.sender().objectName() == object_name[1]:
-            for widget in range(crud.popup.verticalLayout.count()):
-                crud.popup.verticalLayout.itemAt(widget).widget().hide()
-                crud.popup.verticalLayout_2.itemAt(widget).widget().hide()
-                crud.popup.verticalLayout_3.itemAt(widget).widget().hide()
-
-        # --pushButton_cancel---------------------------------------------------
-            crud.popup.pushButton_cancel.hide()
-
-        # --pushButton_accept---------------------------------------------------
-            crud.popup.pushButton_accept.setText('OK')
-            crud.popup.pushButton_accept.clicked.connect(crud.close)
-
-        # --TabOrder------------------------------------------------------------
-            crud.popup.comboBox_store.setFocus()
-            crud.setTabOrder(
-                crud.popup.comboBox_store, crud.popup.pushButton_accept
-            )
-
-        elif self.sender().objectName() == object_name[2]:
-        # --labels--------------------------------------------------------------
-            crud.popup.label_stores.setText("Group")
-            crud.popup.label_officeteam.setText("Email")
-
-        # --pushButton_accept_--------------------------------------------------
-            crud.popup.pushButton_accept_store.hide()
-            crud.popup.pushButton_accept_officeteam.setText('Insert')
-
-        # --TabOrder------------------------------------------------------------
-            crud.popup.comboBox_store.setFocus()
-            crud.setTabOrder(
-                crud.popup.comboBox_store,
-                crud.popup.lineEdit_emails_stores
-            )
-            crud.setTabOrder(
-                crud.popup.lineEdit_emails_stores,
-                crud.popup.lineEdit_emails_officeteam
-            )
-            crud.setTabOrder(
-                crud.popup.lineEdit_emails_officeteam,
-                crud.popup.pushButton_accept_officeteam
-            )
-            crud.setTabOrder(
-                crud.popup.pushButton_accept_officeteam,
-                crud.popup.pushButton_accept
-            )
-            crud.setTabOrder(
-                crud.popup.pushButton_accept,
-                crud.popup.pushButton_cancel
-            )
-
-        # --pushButton_cancel---------------------------------------------------
-            crud.popup.pushButton_cancel.clicked.connect(crud.close)
-
-        # --pushButton_accept---------------------------------------------------
-            crud.popup.pushButton_accept.clicked.connect(crud.table_element_insertion)
-        else:
-            crud.popup.pushButton_accept_store.setText('Delete')
-            crud.popup.pushButton_accept_officeteam.setText('Delete')
 
         crud.exec_()
 
@@ -258,15 +214,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.myStatus.showMessage('Created by GBXXI')
         self.setStatusBar(self.myStatus)
 
-    def tb_input(self):
+    def tb_show(self):
 
         self.mwin.tableWidget_voucher.insertRow(0)
 
         self.rows = self.mwin.tableWidget_voucher.rowCount()
         item = self.mwin.lineEdit_voucher.displayText()
 
-        self.mwin.tableWidget_voucher.setItem(0, 0, QtWidgets.QTableWidgetItem(
-            f'{item}'))
+        self.mwin.tableWidget_voucher.setItem(0, 0,
+            QtWidgets.QTableWidgetItem(f'{item}')
+        )
 
         self.mwin.lcdNumber_boxes.display(self.rows)
 
@@ -311,9 +268,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.rows > 0
             ):
                 recipients = ('; ').join(
-                    self.stores[self.mwin.comboBox_recievingStore.currentText()]
+                    self.recipients[self.mwin.comboBox_recievingStore.currentText()]
                 )
-                officeTeam = ('; ').join(self.office_team)
+                carbon_copy = ('; ').join(self.carbon_copy)
 
                 try:
                     outlook = client.GetActiveObject("Outlook.Application")
@@ -323,7 +280,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 message = outlook.CreateItem(0)
                 message.Display()
                 message.To = recipients
-                message.CC = officeTeam
+                message.CC = carbon_copy
 
                 message.Subject = f"""Άμεση Αποστολή {
                     self.mwin.comboBox_recievingStore.currentText()
@@ -336,7 +293,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 incoplete.setModal(True)
                 incoplete.setWindowTitle("Κενά Πεδία")
                 incoplete.popup.label.setText(
-                    formattedText.formattedText_EmptyFields)
+                    formattedText.EmptyFields)
                 incoplete.exec_()
 
         except OSError as err:
@@ -344,7 +301,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             no_windows = PopUpText()
             no_windows.setWindowTitle("No Windows OS")
-            no_windows.popup.label.setText(formattedText.formattedText_Os)
+            no_windows.popup.label.setText(formattedText.Os)
             no_windows.exec_()
             self.close()
 
@@ -352,95 +309,10 @@ class MainWindow(QtWidgets.QMainWindow):
             log.warning(err)
 
 
-class PopUpText(QtWidgets.QDialog):
-
-    def __init__(self, parent=None):
-        # --SetUp-------------------------------------------------------------------
-        super().__init__(parent)
-        self.popup = Ui_Dialog_Text()
-        self.popup.setupUi(self)
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
-
-
-class EmailCRUD(QtWidgets.QDialog):
-
-    def __init__(self, parent=None):
-    # --SetUp-------------------------------------------------------------------
-        super().__init__(parent)
-        self.popup = Ui_Dialog_EmailCRUD()
-        self.popup.setupUi(self)
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
-        self.db_ = None
-
-    # --pushButton_accept-------------------------------------------------------
-        self.popup.comboBox_store.activated.connect(self.table_show)
-
-# --Methods---------------------------------------------------------------------
-    @property
-    def connection_(self):
-        connection = self.db_
-        return connection
-
-    @connection_.setter
-    def connection(self, db_):
-        self.db_ = db_
-
-    def table_show(self):
-        self.popup.tableWidget.setColumnCount(0)
-        self.popup.tableWidget.setRowCount(0)
-
-        table = self.db_.table(
-            self.popup.comboBox_store.currentText()
-        )
-
-        for header in table.select_headers:
-            column_count = self.popup.tableWidget.columnCount()
-
-            self.popup.tableWidget.insertColumn(column_count)
-            self.popup.tableWidget.setHorizontalHeaderItem(
-                column_count,
-                QtWidgets.QTableWidgetItem(f'{header[0]}')
-            )
-
-            row = 0
-            for email in table.select_emails(header[0]):
-                row_count = self.popup.tableWidget.rowCount()
-
-                if (
-                    row_count == 0 or
-                    self.popup.tableWidget.item(column_count, (row-1)) != None
-                ):
-                    self.popup.tableWidget.insertRow(row_count)
-
-                self.popup.tableWidget.setItem(
-                    row,
-                    column_count,
-                    QtWidgets.QTableWidgetItem(f'{email[0]}')
-                )
-
-                row += 1
-
-        self.popup.tableWidget.resizeColumnsToContents()
-
-    def table_element_insertion(self):
-        print(self.popup.tableWidget.selectedIndexes()[0].column())
-        # for item in self.popup.tableWidget.selectedIndexes():
-        #     print(item)
-        #     print(self.popup.tableWidget.horizontalHeaderItem(item.column()).text())
-            # self.popup.tableWidget.verticalHeader().text()
-
-    def reject(self):
-        self.close()
-
-    def closeEvent(self, event=None):
-        self.db_.conn.close()
-        if event != None:
-            event.accept()
-
-
-if __name__ == '__main__':
+def main():
     # Declaring our application
     app = QtWidgets.QApplication(sys.argv)
+
 
 # ---------------------------------Window Style---------------------------------
     app.setStyle('fusion')
@@ -463,3 +335,7 @@ if __name__ == '__main__':
     main_window = MainWindow()
     main_window.show()
     sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()

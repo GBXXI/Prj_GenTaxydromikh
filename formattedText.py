@@ -50,17 +50,25 @@ def formattedBody(greeting, consNum, boxes, voucherNum, sender_name):
     # print(formattedText_style, formattedText_Body)
     return formattedText_style + '\n' + formattedText_Body
 
-formattedText_Os = (
+def existing_email(email):
+    existing = (
+        "Το email που προσπαθείτε να εισάγετε<br>"
+        f"<strong>{email}</strong><br>"
+        "υπάρχει ήδη."
+    )
+    return existing
+
+Os = (
     "YOU ARE RUNNING THIS PROGRAMM IN AN NO WINDOWS MACHINE."
     "AFTER THIS MESSAGE IS CLOSED IT IS GOING TO BE TERMINATED."
 )
 
-formattedText_EmptyFields = (
+EmptyFields = (
     "Υπάρχουν κενά πεδία! \n"
     "Παρακαλώ συμπληρώστετα και προσπαθήστε ξανά!"
 )
 
-formattedText_Help = (
+Help = (
     "<html>\n"
         "\n"
         "    <head />\n"
@@ -87,6 +95,12 @@ formattedText_Help = (
     "</html>"
 )
 
+No_db=(
+    "Το αρχείο <strong>GenikhTaxydromikh.db</strong> δεν βρέθηκε!<br>"
+    "Επανεκκινήστε την εφαρμογή και βεβαιωθείτε<br>"
+    "πως το αρχείο βρίσκεται στον ίδιο φάκελο με το εκτελέσιμο .exe<br>"
+)
+
 # -------------------------------"Dirty Testing"--------------------------------
 if __name__ == '__main__':
     v_dict = {'key1':'value1', 'key2':'value2', 'key3':'value3'}
@@ -94,4 +108,4 @@ if __name__ == '__main__':
     v_gen = (f'<li>{value}</li>' for value in v_dict.values())
     k = formattedBody('evening', 321, 3, v_gen, 'John Doe')
     print(k)
-    print(formattedText_Os)
+    print(Os)

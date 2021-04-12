@@ -2,6 +2,7 @@
 import os
 import sqlite3 as lite3
 import logging
+import re
 
 
 # ------------------------------MODULARISED LOGGER------------------------------
@@ -11,44 +12,99 @@ file_handler = logging.FileHandler(f"{directory}/GenikhTaxydromikh.log")
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
-log_format = logging.Formatter('%(asctime)s %(levelname)s\n%(message)s\n')
+log_format = logging.Formatter(
+    '%(filename)s '
+    '%(asctime)s %(levelname)s\n'
+    '%(funcName)s\n%(message)s\n'
+)
 
 file_handler.setFormatter(log_format)
 
 log.addHandler(file_handler)
 
 
-class DatebaseQueries():
+class DatabaseQueries():
 
     def __init__(self, conn, tbname):
         self.tbname = tbname
         self.conn = conn
 
-    @property
-    def show_tables(self):
-        try:
-            curr = self.conn.cursor()
+    def update_view_cases_order(self, case):
+        cur = self.conn.cursor()
 
-            tables = curr.execute(
-                f"""
-                    SELECT name FROM sqlite_master;
-                """
+        view = {
+            "Recipients Email": ['Recipients', 'recipient_id', 'recipient_name'],
+            "Included Email"  : ['CarbonCopy', 'included_id',  'included_name']
+            }.get(self.tbname)
+
+        ids_names = cur.execute(
+            f"""
+                SELECT {view[1]}, {view[2]}
+                FROM {view[0]}
+                ORDER BY {view[2]}
+                ;
+            """
+        )
+
+        for id_name in ids_names:
+            substituted_input = re.sub("\'|;", " ", id_name[1]) # Eliminating non-acceptable characters.
+
+            yield (
+                {
+                    "cases": f"(CASE WHEN e.email_id = {id_name[0]} THEN e.email END) '{substituted_input}'",
+                    "order": f"'{substituted_input}' DESC"
+                }.get(case)
             )
 
-            table_list = [table[0] for table in tables]
+    def update_views(self):
+        email_table = {
+            "Recipients Email": "RecipientsEmail",
+            "Included Email"  : "CarbonCopyEmails"
+        }.get(self.tbname)
+        try:
+            with open(f"{os.getcwd()}/views.sql", 'w+') as view:
+                view.write(
+                    (
+                        f"DROP VIEW IF EXISTS '{self.tbname}';\n"
+                        f"CREATE VIEW IF NOT EXISTS '{self.tbname}' AS\n"
+                        "SELECT DISTINCT\n"
+                    )
+                )
+                view.write(',\n'.join(self.update_view_cases_order('cases')))
+                view.write(f"\nFROM {email_table} e\n")
+                view.write("ORDER BY ")
+                view.write(',\n'.join(self.update_view_cases_order('order')))
+                view.write('\n;')
 
         except Exception as err:
-            log.warning(f'Tables Show Error:\n\t{err}')
+            log.warning(f'Writing view Error:\n\t{err}')
+
+        try:
+            cur = self.conn.cursor()
+            with open(f"{os.getcwd()}/views.sql", "r") as view:
+                new_view = view.read()
+                cur.executescript(new_view)
+                self.conn.commit()
+
+        except Exception as err:
+            log.warning(f'Reading view Error:\n\t{err}')
+
         finally:
-            curr.close()
-            return table_list
+            cur.close()
+
+        try:
+            os.remove(f"{os.getcwd()}/views.sql")
+
+        except Exception as err:
+            log.warning(f'Deleting view Error:\n\t{err}')
 
     @property
     def select_headers(self):
-        curr = self.conn.cursor()
+        cur = self.conn.cursor()
+        self.update_views()
 
         try:
-            headers = curr.execute(
+            headers = cur.execute(
                 f"""
                     SELECT name FROM PRAGMA_TABLE_INFO('{self.tbname}');
                 """
@@ -61,10 +117,10 @@ class DatebaseQueries():
             log.warning(f'Headers Select Error:\n\t{err}')
 
         finally:
-            curr.close()
+            cur.close()
 
     def select_emails(self, headers=None):
-        curr = self.conn.cursor()
+        cur = self.conn.cursor()
 
         if headers == None:
             self.headers = self.select_headers
@@ -73,7 +129,7 @@ class DatebaseQueries():
 
         try:
             for header in self.headers:
-                emails = curr.execute(
+                emails = cur.execute(
                     f"""
                         SELECT DISTINCT
                             {header[0]}
@@ -88,108 +144,137 @@ class DatebaseQueries():
                     yield email
 
         except Exception as err:
-            print('Emails Select Error:\n\t', err)
+            log.warning(err)
 
         finally:
             self.headers = self.select_headers  # Reseting our headers.
-            curr.close()
+            cur.close()
+
 
     def email_insert(self, header, values):
-        curr = self.conn.cursor()
+        cur = self.conn.cursor()
+        email_table = {
+            "Recipients Email": ["Recipients", "RecipientsEmail", "recipient"],
+            "Included Email"  : ["CarbonCopy", "CarbonCopyEmails", "included"]
+        }.get(self.tbname)
 
-        # All the headers are used in order for the insertion to be executed by
-        # placeholders.
-        table = {
-            headers[0]:
-            value if header == headers[0] else None for value in values
-            for headers in self.select_headers
-        }
+        values = re.sub(";|\'|", "", values)
+        header = re.sub(";|\'|", "", header)
 
-        placeholders = ['?' for header in table.keys()]
-        placeholders = ', '.join(f'{qm}' for qm in placeholders)
+        _id = cur.execute(
+            f"""
+                SELECT
+                    {email_table[2]}_id
+                FROM
+                    {email_table[0]}
+                WHERE
+                    {email_table[2]}_name = '{header}'
+                ;
+            """
+        )
+        header_id = _id.fetchall()
 
-        if header in table.keys():
-            try:
-                insertion = (
-                    f"""
-                        INSERT INTO
-                            {self.tbname}(
-                                {', '.join(f"{header}" for header in table.keys())}
-                            )
+        if header_id:
+            cur.execute(
+                f"""
+                    INSERT INTO {email_table[1]}(
+                            email_id, email
+                        )
+
                         VALUES
-                            ({placeholders});
+                            ({header_id[0][0]}, '{values}')
+                    ;
+                """
+            )
 
-                    """
-                )
-
-                curr.execute(insertion, list(table.values()))
-
-            except Exception as err:
-                log.warning(f'Insertion Error:\n\t{err}')
-
-            finally:
-                curr.close()
-                self.conn.commit()
+            self.conn.commit()
 
         else:
-            try:
-                curr.execute(
+            cur.execute(
+                f"""
+                    INSERT INTO {email_table[0]}(
+                            {email_table[2]}_name
+                        )
+
+                        VALUES
+                            ('{header}')
+                    ;
+                """
+            )
+
+            self.conn.commit()
+            # Recursion
+            self.email_insert(header, values)
+
+    def email_delete(self, header, values):
+        cur = self.conn.cursor()
+        email_table = {
+            "Recipients Email": ["Recipients", "RecipientsEmail", "recipient"],
+            "Included Email"  : ["CarbonCopy", "CarbonCopyEmails", "included"]
+        }.get(self.tbname)
+
+        values = re.sub(";|\'|", "", values)
+        header = re.sub(";|\'|", "", header)
+
+        _id = cur.execute(
+            f"""
+                SELECT
+                    {email_table[2]}_id
+                FROM
+                    {email_table[0]}
+                WHERE
+                    {email_table[2]}_name = '{header}'
+                ;
+            """
+        )
+        header_id = _id.fetchall()
+
+        if header_id:
+            cur.execute(
+                f"""
+                    DELETE FROM
+                        {email_table[1]}
+                    WHERE
+                        email_id = {header_id[0][0]} AND
+                        email = '{values}'
+                    ;
+                """
+            )
+
+            self.conn.commit()
+
+            elements = cur.execute(
+                f"""
+                    SELECT
+                        COUNT(email_id)
+                    FROM
+                        {email_table[1]}
+                    WHERE
+                        email_id = {header_id[0][0]}
+                    ;
+                """
+            )
+
+            clear = elements.fetchall()
+
+
+            if clear[0][0] == 0:
+                cur.execute(
                     f"""
-                        ALTER TABLE
-                            {self.tbname}
-                        ADD COLUMN
-                            {header} text;
+                        DELETE FROM
+                            {email_table[0]}
+                        WHERE
+                            {email_table[2]}_id = {header_id[0][0]}
+
+                        ;
                     """
                 )
 
-            except Exception as err:
-                log.warning(f'Expansion Error:\n\t{err}')
-
-            finally:
                 self.conn.commit()
-                self.email_insert(header, values)
 
-    def email_delete(self, header, values):
-        curr = self.conn.cursor()
-
-        try:
-            curr.execute(
-                f"""
-                    DELETE FROM
-                        {self.tbname}
-                    WHERE
-                        {header} = '{values}';
-                """
-            )
-        except Exception as err:
-            log.warning(f'Deletion Error:\n\t{err}')
-        finally:
-            curr.close()
-            self.conn.commit()
-
-    def email_update(self, header, value_replaced, replacing_value):
-        curr = self.conn.cursor()
-
-        try:
-            curr.execute(
-                f"""
-                    UPDATE
-                        {self.tbname}
-                    SET
-                        {header} = '{replacing_value}'
-                    WHERE
-                        {header} = '{value_replaced}';
-                """
-            )
-
-        except Exception as err:
-            log.warning(f'Update Error:\n\t{err}')
-        finally:
-            curr.close()
-            self.conn.commit()
 
     def __repr__(self):
-        return f"DatebaseQueries({self.conn}, {self.tbname})"
+        return f"DatabaseQueries({self.conn}, {self.tbname})"
 
     def __str__(self):
         return (
@@ -197,16 +282,51 @@ class DatebaseQueries():
             f"Table: {self.tbname}"
         )
 
-
-class DataBase(DatebaseQueries):
+class DataBase(DatabaseQueries):
 
     def __init__(self, db):
         self.db = db
         self.conn = lite3.connect(self.db)
 
+    def setup(self):
+        cur = self.conn.cursor()
+        try:
+            with open(f"{os.getcwd()}/setup.sql", "r") as setupfile:
+                setup = setupfile.read()
+                cur.executescript(setup)
+
+        except Exception as err:
+            log.warning(f'Setup Error:\n\t{err}')
+            return False
+
+        finally:
+            cur.close()
+        return True
+
     def table(self, tbname):
         self.tbname = tbname
-        return DatebaseQueries(self.conn, self.tbname)
+        return DatabaseQueries(self.conn, self.tbname)
+
+    @property
+    def show_views(self):
+        try:
+            cur = self.conn.cursor()
+
+            tables = cur.execute(
+                f"""
+                    SELECT name FROM sqlite_master
+                    WHERE type='view';
+                """
+            )
+
+            table_list = [table[0] for table in tables]
+
+        except Exception as err:
+            log.warning(f'Tables Show Error:\n\t{err}')
+        finally:
+            cur.close()
+            return table_list
+
 
     def __enter__(self):
         # self.conn = lite3.connect(self.db)
@@ -228,79 +348,24 @@ class DataBase(DatebaseQueries):
             log.warning(f"{exc_type}, {exc_val}, {exc_tb}")
 
 
-# -------------------------------"Dirty Testing"--------------------------------
 if __name__ == "__main__":
-    # pass
+    # db_file = 'sqlite3_external\Main_test.db'
+    db_file = r'sqlite3_external\Main_test.db'
+    with DataBase(db_file) as db:
+        cur = db.conn.cursor()
+        k = db.table("Included Email")
+        # db.tbname = "Recipients"se
+        print(db.tbname)
+        print(k.tbname)
 
-    # ------------------------------------------------------------------------------
-    # db_file = "./GenikhTaxydromikh.db"
-    # conn = lite3.connect(db_file)
+        for header in k.select_headers:
+            print(header)
 
-    # db_class = DbElements(db_file, 'stores')
-    # emails = db_class.select_emails
-    # headers = db_class.select_headers()
+    #    for email in k.select_emails():
+    #        print(email)
 
-    # dict_ = dict()
-    # for header in headers:
-    #     dict_.update({header[0] : [email[0] for email in emails(header)]})
-    # print(dict_)
-    # ------------------------------------------------------------------------------
-    directory = os.getcwd()
-    db_file = (f"{directory}/GenikhTaxydromikh.db")
-    db_prj = DataBase(db_file)
-    db_query = DatebaseQueries(db_file, 'stores')
-    # db_prj.table = 'stores'
-
-    tb = db_prj.table('stores')
-    print(db_prj.show_tables)
-    # print(db_query)
-    # print(repr(db_query))
-    # tb.email_insert('AEO_NG_expand', ['georgebitsonis+ExpansionTest@gmail.com'])
-    # tb.email_delete('AEO_NG', 'georgebitsonis+UPDATETest@gmail.com')
-    tb.email_update('AEO_N5G', 'georgebitsonis+InsertionTest@gmail.com', 'georgebitsonis+UPDATETest@gmail.com')
-    # print(tb.show_tables)
-    # # # lb = tb.select_emails('AEO_NG')
-    # # lb = tb.select_emails()
-    # # h = [h[0] for h in lb]
-    # # e = [header[0] for header in db_prj.select_headers]
-    # # print(h)
-    # # print(e)
-
-    # with db_prj as db:
-    #     table_stores = db.table('stores')
-    #     table_office_team = db.table('officeteam')
-
-    # j = table_stores.select_emails()
-
-    # h1 = [[email[0] for email in table_stores.select_emails(header[0])] for header in table_stores.select_headers]
-    # print(h1)
-
-    # # self.stores = [header[0] for header in table_stores.select_headers]
-    #     office_team = [email[0] for email in table_office_team.select_emails()]
-
-    #     # stores = {header[0]:[email[0] for email in table_stores.select_emails(header)]\
-    #     #     for header in table_stores.select_headers}
-
-
-# ------------------------------------------------------------------------------
-    # directory = os.getcwd()
-    # db_file = (f"{directory}/GenikhTaxydromikh.db")
-    # database = DataBase(db_file)
-
-    # with database as db:
-    #     headers = db.select_headers
-    #     emails = db.select_emails
-
-    #     with concurrent.futures.ThreadPoolExecutor() as executor:
-    #         tb = ['stores', 'officeteam']
-    #         results = executor.map(headers, tb)
-
-    #     # with concurrent.futures.ThreadPoolExecutor() as executor:
-    #     #     for result in results:
-    #     #         result_1 = executor.map(emails, list(result))
-
-    #     # for result in result_1:
-    #     #     for inner_result in result:
-    #     #         print(inner_result)
-    #         for result in results:
-    #             print(result)
+        # for index, id_ in enumerate(k.update_view_cases()):
+        #     print(index, id_)
+        # k.update_views()
+        k.email_insert(';Zaccaria Mmitr', 'email_insert@test.com')
+        k.email_delete('Zaccaria Mmitr', 'email_insert@test.com')
