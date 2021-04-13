@@ -64,7 +64,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 # no_db.setModal(True)
                 # no_db.exec_()
         else:
-            self.dbsetup()
+            self.email_recievers()
 
     # --TabOrder----------------------------------------------------------------
         self.mwin.lineEdit_consNum.setFocus()
@@ -180,7 +180,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 # -----------------------------------Methods------------------------------------
 
-    def dbsetup(self):
+    def email_recievers(self):
 
         with DataBase(MainWindow.db_file) as db:
             table_recipients = db.table('Recipients')

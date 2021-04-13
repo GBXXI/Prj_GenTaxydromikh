@@ -37,7 +37,7 @@ class EmailCRUD(QtWidgets.QDialog):
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 
         self.db_connection = db_connection
-        self.sender = sender
+        self.sender_obj = sender
         self.buffer = dict()
 
         object_name = {
@@ -76,7 +76,7 @@ class EmailCRUD(QtWidgets.QDialog):
         self.popup.pushButton_cancel.clicked.connect(self.reject)
 
     # --Cases-------------------------------------------------------------------
-        if self.sender == object_name[1]:
+        if self.sender_obj == object_name[1]:
         # --Title---------------------------------------------------------------
             self.setWindowTitle("Preview")
 
@@ -142,14 +142,14 @@ class EmailCRUD(QtWidgets.QDialog):
                 self.accept
             )
 
-            if self.sender == object_name[2]:
+            if self.sender_obj == object_name[2]:
             # --Title-----------------------------------------------------------
                 self.setWindowTitle("Insert")
 
             # --pushButton_accept_----------------------------------------------
                 self.popup.pushButton_accept_officeteam.setText("Insert")
 
-            elif self.sender == object_name[3]:
+            elif self.sender_obj == object_name[3]:
             # --Title-----------------------------------------------------------
                 self.setWindowTitle("Delete")
 
@@ -259,6 +259,8 @@ class EmailCRUD(QtWidgets.QDialog):
             2: 'Delete'
         }
 
+        print(self.sender().text())
+
         items = self.popup.tableWidget.findItems(
             self.popup.lineEdit_emails_officeteam.text(),
             QtCore.Qt.MatchWildcard
@@ -354,7 +356,7 @@ class EmailCRUD(QtWidgets.QDialog):
             except Exception as err:
                 log.warning(err)
 
-        elif self.sender().text() == object_action[2]:
+        elif self.sender().objectName() == object_action[2]:
             try:
                 for item in items:
                     item.setSelected(True)
@@ -387,9 +389,9 @@ class EmailCRUD(QtWidgets.QDialog):
 
     def accept(self):
         self.table_db_update()
-        self.db_connection.cleanup(
-            self.popup.comboBox_store.currentText()
-        )
+        # self.db_connection.cleanup(
+            # self.popup.comboBox_store.currentText()
+        # )
         self.close()
 
     def reject(self):

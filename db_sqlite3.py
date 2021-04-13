@@ -297,11 +297,11 @@ class DataBase(DatabaseQueries):
 
         except Exception as err:
             log.warning(f'Setup Error:\n\t{err}')
-            return False
+            return False  # Flag for testing(to be removed)
 
         finally:
             cur.close()
-        return True
+        return True  # Flag for testing(to be removed)
 
     def table(self, tbname):
         self.tbname = tbname
